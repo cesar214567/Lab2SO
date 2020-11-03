@@ -10,11 +10,11 @@
 
 
 int waiting_list = 0;
-int num_personas = 10;
-sem_t customers; //numero de waiters
-sem_t barberos;
+int num_personas = N_Persons; // missing people
+sem_t customers; //numbers of waiters
+sem_t barberos;  // free barbers
 
-pthread_mutex_t lock_seats;
+pthread_mutex_t lock_seats; //to block 
 pthread_mutex_t personas;
 
 pthread_t barbers[N_Barbers];
@@ -65,7 +65,7 @@ int main(){
     pthread_mutex_init(&personas,NULL);
     sem_init(&customers,1,0);
     sem_init(&barberos,1,0);
-    int i,j;
+    int i;
     for(i=0;i<N_Barbers;i++){
         pthread_create(&barbers[i],NULL,barber,i);
     }
