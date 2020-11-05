@@ -3,12 +3,11 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <semaphore.h>
-#define N_Barbers 3
-#define N_Persons 10
+#define N_Barbers 10
+#define N_Persons 10000
 #define SEATS 5
 
 
-sem_t arrival; //numbers of waiters
 sem_t barberos;  //free barbers
 sem_t num_personas; //people left
 sem_t waiting_list; //people waiting
@@ -22,13 +21,10 @@ void *barber(void* id){
     int ID = *(int*) id;
     while (sem_trywait(&num_personas) != -1) { /* will stay in loop until num_personas is empty */
         sem_post(&barberos); /* one barber is now ready to cut hair */
-        sem_wait(&arrival); /* go to sleep if not # of arrivals is 0 */
-        pthread_mutex_lock(&waiting); // Locks waiting mutex to access waiting list as reader and writer
         sem_wait(&waiting_list); /* decreases customer being attended from waiting seats */
-        pthread_mutex_unlock(&waiting); // Unlocks waiting lock for other threads to use waiting list
-        printf("Cortando cabello, barber id: %d\n", ID); /* cut hair (outside critical region */
+        //printf("Cortando cabello, barber id: %d\n", ID); /* cut hair (outside critical region */
   }
-    printf("FIN DEL DIA\n");
+    //printf("FIN DEL DIA\n");
 }
 void *person(void* id){
     int ID = *(int*) id;
@@ -36,22 +32,22 @@ void *person(void* id){
     int temp = 0;
     sem_getvalue(&waiting_list, &temp); //gets number of customers in waiting list at the moment
     if (temp < SEATS) { /* if there are no free chairs, leave */
+        //printf("Person with id %d in waiting list\n", ID);
         sem_post(&waiting_list); // Increases customers in waiting seats 
         pthread_mutex_unlock(&waiting); // Unlocks waiting lock for other threads to use waiting list
         sem_wait(&barberos); /* go to sleep if # of free barbers is 0 */
-        sem_post(&arrival); /* some arrival therefore wake up barber if necessary */
-        printf("Recibiendo corte de cabello, persona id: %d\n", ID); /* be seated and be served */
+        //printf("Recibiendo corte de cabello, persona id: %d\n", ID); /* be seated and be served */
 
     } else {
+        sem_trywait(&num_personas);
         pthread_mutex_unlock(&waiting); // Unlocks waiting lock for other threads to use waiting list
-        printf("No recibio corte de cabello, persona id: %d\n", ID);
+        //printf("No recibio corte de cabello, persona id: %d\n", ID);
     }
 }
 
 
 int main(){
     pthread_mutex_init(&waiting, NULL);
-    sem_init(&arrival,0,0);
     sem_init(&barberos,0,0);
     sem_init(&num_personas,0,N_Persons);
     sem_init(&waiting_list,0,0);
