@@ -29,7 +29,7 @@ void *barber(void* id){
         pthread_mutex_unlock(&lock_seats); /* release 'waiting' */
         printf("Cortando cabello, barber id: %d\n", ID); /* cut hair (outside critical region */
   }
-    printf("FIN DEL DIA %d\n", temp);
+    printf("FIN DEL DIA\n");
 }
 void *person(void* id){
     int ID = (int) id;
