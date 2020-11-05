@@ -4,8 +4,8 @@
 #include <unistd.h>
 #include <semaphore.h>
 #define N_Barbers 3
-#define N_Persons 10
-#define SEATS 5
+#define N_Persons 100
+#define SEATS 50
 
 
 sem_t customers; //numbers of waiters
