@@ -21,7 +21,7 @@ void *barber(void* id){
     int ID = *(int*) id;
     while (sem_trywait(&num_personas) != -1) { /* will stay in loop until num_personas is empty */
         sem_post(&barberos); /* one barber is now ready to cut hair */
-        sem_wait(&waiting_list); /* decreases customer being attended from waiting seats */
+        sem_wait(&waiting_list); /* decreases customer being attended from waiting seats, else it waits for available customers */
   }
 }
 void *person(void* id){
@@ -32,10 +32,10 @@ void *person(void* id){
     if (temp < SEATS) { /* if there are no free chairs, leave */
         sem_post(&waiting_list); // Increases customers in waiting seats 
         pthread_mutex_unlock(&waiting); // Unlocks waiting lock for other threads to use waiting list
-        sem_wait(&barberos); /* go to sleep if # of free barbers is 0 */
+        sem_wait(&barberos); /* Decreases number of available barberos, or waits until there is one available */
 
     } else {
-        sem_trywait(&num_personas);
+        sem_trywait(&num_personas); // Decreases total number of people
         pthread_mutex_unlock(&waiting); // Unlocks waiting lock for other threads to use waiting list
     }
 }
